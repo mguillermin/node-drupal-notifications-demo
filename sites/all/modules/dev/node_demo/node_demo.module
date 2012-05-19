@@ -13,4 +13,7 @@ function node_demo_init() {
   ), 'setting');
   
   drupal_add_js('jQuery(document).ready(function () {console.log(Drupal.settings.node_demo.roles);});', 'inline');
+  
+  // Si on souhaite inclure un fichier js :
+  // drupal_add_js('misc/collapse.js', 'file');
 }
