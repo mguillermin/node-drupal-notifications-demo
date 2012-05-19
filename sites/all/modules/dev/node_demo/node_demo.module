@@ -17,3 +17,20 @@ function node_demo_init() {
   // Si on souhaite inclure un fichier js :
   // drupal_add_js('misc/collapse.js', 'file');
 }
+
+function node_demo_webform_select_options_info() {
+  $items = array();
+  
+  $items['roles'] = array(
+    'title' => t('Roles'),
+    'options callback' => 'webform_options_roles',
+  );
+  
+  return $items;
+  
+}
+
+function webform_options_roles($component, $flat, $filter, $arguments) {
+  $roles = array_values(user_roles());
+  return array_combine($roles, $roles);
+}
