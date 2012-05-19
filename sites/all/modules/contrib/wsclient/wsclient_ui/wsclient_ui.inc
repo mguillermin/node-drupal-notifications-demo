@@ -137,7 +137,7 @@ function wsclient_service_form($form, &$form_state, $service, $op = 'edit') {
   $form['formatter'] = array(
     '#type' => 'select',
     '#title' => 'Type',
-    '#default_value' => isset($service->formatter)?$service->formatter:'',
+    '#default_value' => isset($service->settings['formatter'])?$service->settings['formatter']:'',
     '#options' => array(
       '' => '',
       HttpClientBaseFormatter::FORMAT_FORM => 'application/x-www-form-urlencoded',
@@ -354,7 +354,6 @@ function wsclient_ui_operation($form, &$form_state, $service, $operation, $op = 
   if ($service->type == 'rest'){
     $form['type'] = array(
       '#type' => 'select',
-      '#element_validate' => array('wsclient_ui_validate_parameters'),
       '#title' => t('HTTP Method'),
       '#default_value' => isset($operation['type']) ? $operation['type'] : 'GET',
       '#description' => t('Specify the variables transmission method'),
@@ -565,7 +564,9 @@ function wsclient_ui_operation_submit($form, &$form_state) {
       $operation['result']['type'] = 'list<' . $unmapped_type . '>';
     }
   }
-  unset($service->operations[$form_state['operation']['name']]);
+  if (isset($service->operations[$form_state['operation']['name']])) {
+    unset($service->operations[$form_state['operation']['name']]);
+  }
   $service->operations[$form_state['values']['name']] = $operation;
   $service->save();
   drupal_set_message(t('Operation %operation has been saved.', array('%operation' => $operation['label'])));
