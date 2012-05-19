@@ -1,0 +1,5 @@
+name = NodeJS Interactions Demo module
+description = Module used to demonstrate NodeJS interactions during Drupal Camp
+package = DrupalCamp
+core = 7.x
+

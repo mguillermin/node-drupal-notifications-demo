@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * Implementation of hook_init()
+ */
+function node_demo_init() {
+  global $user;
+  drupal_add_js(array(
+    'node_demo' => array(
+      'uid' => $user->uid,
+      'roles' => array_values($user->roles),
+    )
+  ), 'setting');
+  
+  drupal_add_js('jQuery(document).ready(function () {console.log(Drupal.settings.node_demo.roles);});', 'inline');
+}
