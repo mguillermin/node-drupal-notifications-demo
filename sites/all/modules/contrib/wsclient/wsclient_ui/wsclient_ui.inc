@@ -134,6 +134,19 @@ function wsclient_service_form($form, &$form_state, $service, $op = 'edit') {
     '#required' => TRUE,
     '#description' => t('The type of the web service.'),
   );
+  $form['formatter'] = array(
+    '#type' => 'select',
+    '#title' => 'Type',
+    '#default_value' => isset($service->formatter)?$service->formatter:'',
+    '#options' => array(
+      '' => '',
+      HttpClientBaseFormatter::FORMAT_FORM => 'application/x-www-form-urlencoded',
+      HttpClientBaseFormatter::FORMAT_JSON => 'application/json',
+      HttpClientBaseFormatter::FORMAT_PHP => 'application/vnd.php.serialized',
+    ),
+    '#required' => FALSE,
+    '#description' => t('The formatter to use for the web service.'),
+  );
   if ($op == 'edit') {
     // Operations of the web service in a table
     $rows = array();
@@ -292,6 +305,12 @@ function wsclient_service_form_submit($form, &$form_state) {
     }
   }
 
+  if (isset($form_state['values']['formatter']) && $form_state['values']['formatter']) {
+    $service->settings['formatter'] = $form_state['values']['formatter'];   
+  } else {
+    unset($service->settings['formatter']);
+  }
+  
   $service->save();
   drupal_set_message(t('Web service description %service has been saved.', array('%service' => $service->label)));
   if ($form_state['op'] == 'add') {
@@ -332,6 +351,22 @@ function wsclient_ui_operation($form, &$form_state, $service, $operation, $op = 
     '#element_validate' => array('wsclient_ui_operation_name_validate'),
     '#weight' => -10,
   );
+  if ($service->type == 'rest'){
+    $form['type'] = array(
+      '#type' => 'select',
+      '#element_validate' => array('wsclient_ui_validate_parameters'),
+      '#title' => t('HTTP Method'),
+      '#default_value' => isset($operation['type']) ? $operation['type'] : 'GET',
+      '#description' => t('Specify the variables transmission method'),
+      '#options' => array(
+        'GET' => 'GET',
+        'POST' => 'POST',
+        'PUT' => 'PUT',
+        'DELETE' => 'DELETE',
+      ),
+    );
+  }  
+  
   $form['parameters'] = array(
     '#tree' => TRUE,
     '#element_validate' => array('wsclient_ui_validate_parameters'),
@@ -497,6 +532,10 @@ function wsclient_ui_operation_submit($form, &$form_state) {
   $operation = $form_state['operation'];
 
   $operation['label'] = $form_state['values']['label'];
+  
+  if ($service->type == 'rest') {
+    $operation['type'] = $form_state['values']['type'];
+  }  
   $operation['parameter'] = array();
   foreach ($form_state['values']['parameters']['items'] as $key => $item) {
     if (!empty($item['name'])) {

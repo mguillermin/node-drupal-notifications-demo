@@ -38,7 +38,11 @@ class WSClientRESTEndpoint extends WSClientEndpoint {
   public function client() {
     if (!isset($this->client)) {
       if (isset($this->service->settings['formatter'])) {
-        $this->client = new HttpClient(NULL, $this->service->settings['formatter']);
+        if (is_string($this->service->settings['formatter'])) {
+          $this->client = new HttpClient(NULL, new HttpClientBaseFormatter($this->service->settings['formatter']));
+        } else {
+          $this->client = new HttpClient(NULL, $this->service->settings['formatter']);
+        }
       }
       else {
         $this->client = new HttpClient(NULL, new HttpClientBaseFormatter(HttpClientBaseFormatter::FORMAT_JSON));
@@ -75,6 +79,10 @@ class WSClientRESTEndpoint extends WSClientEndpoint {
     if (isset($operation['data'])) {
       $data = $arguments[$operation['data']];
       unset($arguments[$operation['data']]);
+    }
+    if ($operation['type'] == 'POST') {
+      $data = $arguments;
+      $arguments = array();
     }
     try {
       $response = $client->execute(new HttpClientRequest($this->service->url . $operation_url, array(
