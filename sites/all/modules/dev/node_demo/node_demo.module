@@ -11,11 +11,12 @@ function node_demo_init() {
       'roles' => array_values($user->roles),
     )
   ), 'setting');
-  
-  drupal_add_js('jQuery(document).ready(function () {console.log(Drupal.settings.node_demo.roles);});', 'inline');
-  
-  // Si on souhaite inclure un fichier js :
-  // drupal_add_js('misc/collapse.js', 'file');
+
+  drupal_add_js('http://localhost:8080/notifications.js', 'file');
+  drupal_add_js('jQuery(document).ready(function () {'.
+      'notifications.display(Drupal.settings.node_demo.uid, Drupal.settings.node_demo.roles);'.
+      '});',
+    'inline');
 }
 
 function node_demo_webform_select_options_info() {
